@@ -53,9 +53,14 @@ def reader(args):
 
 
 def main():
+
     gevent.signal(signal.SIGQUIT, gevent.kill)
 
-    parser = argparse.ArgumentParser(description='Apache Log Replicator')
+    parser = argparse.ArgumentParser(
+        prog='areplay',
+        description='Apache Log live replay',
+        formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=80)
+    )
 
     parser.add_argument('-a', '--auth', help='Basic authentication user:password', type=str)
 
@@ -63,7 +68,7 @@ def main():
 
     parser.add_argument('-i', '--ignore', help='Ignore matching requests', type=str)
 
-    parser.add_argument('-d', '--dry-run', dest='dry_run', action='store_true')
+    parser.add_argument('-d', '--dry-run', dest='dry_run', action='store_true', help='Only prints URLs')
 
     parser.add_argument('-f', '--format', help='Apache log format', type=str, default=DEFAULT_LOG_FORMAT)
 
