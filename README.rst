@@ -111,7 +111,7 @@ Examples
 Change Log
 ==========
 
-Please see `CHANGELOG <https://github.com/ssynchron/areplay/blob/master/CHANGELOG.rst>`_.
+Please see `CHANGELOG <https://github.com/ssynchron/areplay/blob/master/CHANGES.rst>`_.
 
 
 =======
