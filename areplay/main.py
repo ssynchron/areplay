@@ -1,3 +1,4 @@
+import sys
 import os
 import re
 import gevent
@@ -11,6 +12,8 @@ from gevent.queue import Queue
 from gevent import monkey
 
 from .tail import GeventTail
+
+from . import __version__
 
 monkey.patch_socket()
 
@@ -61,6 +64,8 @@ def main():
         description='Apache Log live replay',
         formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=80)
     )
+
+    parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
 
     parser.add_argument('-a', '--auth', help='Basic authentication user:password', type=str)
 
