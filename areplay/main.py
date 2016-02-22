@@ -10,6 +10,7 @@ import argparse
 
 from gevent.queue import Queue
 from gevent import monkey
+from gevent.pool import Pool
 
 monkey.patch_socket()
 monkey.patch_ssl()
@@ -79,9 +80,12 @@ def reader(args):
         credentials = args.auth.split(':')
         args.auth = requests.auth.HTTPBasicAuth(credentials[0], credentials[1])
 
+    pool = Pool(args.concurrency)
+
     gt = GeventTail(file_name=args.log_file)
     for line in gt.readline():
-        gevent.spawn(worker, args, line, line_parser).join()
+        pool.spawn(worker, args, line, line_parser)
+    pool.join()
 
 
 def main():
@@ -96,6 +100,7 @@ def main():
 
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
     parser.add_argument('-a', '--auth', help='Basic authentication user:password', type=str)
+    parser.add_argument('-c', '--concurrency', help='Concurrency pool size', type=int, default=50)
     parser.add_argument('-m', '--match', help='Only process matching requests', type=str)
     parser.add_argument('-i', '--ignore', help='Ignore matching requests', type=str)
     parser.add_argument('-d', '--dry-run', dest='dry_run', action='store_true', help='Only prints URLs')
