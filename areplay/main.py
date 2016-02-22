@@ -11,13 +11,38 @@ import argparse
 from gevent.queue import Queue
 from gevent import monkey
 
-from .tail import GeventTail
-
-from . import __version__
-
 monkey.patch_socket()
+monkey.patch_ssl()
+
+__version__ = '0.5'
 
 DEFAULT_LOG_FORMAT = "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\""
+USER_AGENT = 'ApacheReplay/%s' % __version__
+
+headers = {
+    'User-agent': USER_AGENT,
+}
+
+
+class GeventTail():
+    def __init__(self, *args, **kwargs):
+        self.file_name = kwargs.pop('file_name')
+        try:
+            self.fd = os.open(self.file_name, os.O_RDONLY | os.O_NONBLOCK)
+            os.lseek(self.fd, 0, os.SEEK_END)
+        except:
+            self.fd = None
+        self.hub = gevent.get_hub()
+        self.watcher = self.hub.loop.stat(self.file_name)
+
+    def readline(self):
+        while self.fd:
+            lines = os.read(self.fd, 4096).splitlines()
+            if lines:
+                for line in lines:
+                    yield line
+            else:
+                self.hub.wait(self.watcher)
 
 
 def match_keywords(keywords, request_url):
@@ -36,9 +61,11 @@ def worker(args, line, line_parser):
     ignore = args.ignore is not None and match_keywords(args.ignore, l['request_url'])
 
     if match and not ignore:
-        print url
-        if not args.dry_run and match:
-            r = requests.get(url, auth=args.auth)
+        if not args.dry_run:
+            r = requests.get(url, auth=args.auth, verify=args.verify, headers=headers)
+            print '%s %s' % (url, r.status_code)
+        else:
+            print '[dry run] %s' % (url)
     else:
         print '[ignored] %s' % (url)
 
@@ -76,6 +103,8 @@ def main():
     parser.add_argument('-d', '--dry-run', dest='dry_run', action='store_true', help='Only prints URLs')
 
     parser.add_argument('-f', '--format', help='Apache log format', type=str, default=DEFAULT_LOG_FORMAT)
+
+    parser.add_argument('-sv', '--skip-verify', dest='verify', action='store_false', help='Skip SSL certificate verify')
 
     parser.add_argument('server', help='Remote Server')
 

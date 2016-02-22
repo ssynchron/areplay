@@ -1,7 +1,7 @@
 import sys
 
 from setuptools import setup
-from areplay import __version__
+from areplay.main import __version__
 
 install_requires = ['apache-log-parser', 'gevent', 'requests', ]
 
