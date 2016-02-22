@@ -61,9 +61,9 @@ def worker(args, line, line_parser):
     ignore = args.ignore is not None and match_keywords(args.ignore, l['request_url'])
 
     if (match and not ignore) or args.ignore_url:
+        if args.ignore_url and not (match and not ignore):
+            url = args.ignore_url
         if not args.dry_run:
-            if args.ignore_url and not (match and not ignore):
-                url = args.ignore_url
             r = requests.get(url, auth=args.auth, verify=args.verify, headers=headers)
             print '%s %s' % (url, r.status_code)
         else:
