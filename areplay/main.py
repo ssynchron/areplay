@@ -60,8 +60,10 @@ def worker(args, line, line_parser):
     match = args.match is None or match_keywords(args.match, l['request_url'])
     ignore = args.ignore is not None and match_keywords(args.ignore, l['request_url'])
 
-    if match and not ignore:
+    if (match and not ignore) or args.ignore_url:
         if not args.dry_run:
+            if args.ignore_url and not (match and not ignore):
+                url = args.ignore_url
             r = requests.get(url, auth=args.auth, verify=args.verify, headers=headers)
             print '%s %s' % (url, r.status_code)
         else:
@@ -93,21 +95,14 @@ def main():
     )
 
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
-
     parser.add_argument('-a', '--auth', help='Basic authentication user:password', type=str)
-
     parser.add_argument('-m', '--match', help='Only process matching requests', type=str)
-
     parser.add_argument('-i', '--ignore', help='Ignore matching requests', type=str)
-
     parser.add_argument('-d', '--dry-run', dest='dry_run', action='store_true', help='Only prints URLs')
-
     parser.add_argument('-f', '--format', help='Apache log format', type=str, default=DEFAULT_LOG_FORMAT)
-
     parser.add_argument('-sv', '--skip-verify', dest='verify', action='store_false', help='Skip SSL certificate verify')
-
+    parser.add_argument('-iu', '--ignore-url', dest='ignore_url', help='URL to hit when URL from log is ignored', type=str)
     parser.add_argument('server', help='Remote Server')
-
     parser.add_argument('log_file', help='Apache log file path')
 
     args = parser.parse_args()
