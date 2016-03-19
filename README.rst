@@ -55,7 +55,9 @@ Synopsis:
     $ areplay --help
 
 
-     usage: areplay [-h] [-v] [-a AUTH] [-m MATCH] [-i IGNORE] [-d] [-f FORMAT] server log_file
+    usage: areplay [-h] [-v] [-a AUTH] [-w WORKERS] [-m MATCH] [-i IGNORE]
+                   [-d] [-f FORMAT] [-sv] [-iu IGNORE_URL]
+                   server log_file
 
      positional arguments:
 
@@ -64,13 +66,17 @@ Synopsis:
 
      optional arguments:
 
-       -h, --help                  Show this help message and exit
-       -v, --version               show program's version number and exit
-       -a AUTH, --auth AUTH        Basic authentication user:password
-       -m MATCH, --match MATCH     Only process matching requests
-       -i IGNORE, --ignore IGNORE  Ignore matching requests
-       -d, --dry-run               Only prints URLs
-       -f FORMAT, --format FORMAT  Apache log format
+       -h, --help                           Show this help message and exit
+       -v, --version                        Show program's version number and exit
+       -a AUTH, --auth AUTH                 Basic authentication user:password
+       -w NUM, --workers NUM                Workers pool size
+       -d, --dry-run                        Only prints URLs
+       -f FORMAT, --format FORMAT           Apache log format
+       -i IGNORE, --ignore IGNORE           Ignore matching requests
+       -iu URL, --ignore-url URL            URL to hit when URL from log is ignored
+       -m MATCH, --match MATCH              Only process matching requests
+       -sv, --skip-verify                   Skip SSL certificate verify
+       
 
 ========
 Examples
